@@ -15,6 +15,10 @@ namespace TP5.Clases
         public static string LEYENDO = "Leyendo";
 
         private string estado { get; set; }
+        private string hs_llegada { get; set; }
+        private string accion { get; set; }
+        private string fin_uso_instalacion { get; set; }
+        private string posicion_cola { get; set; }
 
         public Cliente(string estado)
         {
