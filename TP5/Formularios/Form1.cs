@@ -22,9 +22,11 @@ namespace TP5
         private int cantidad_iteracciones; // i iteracciones desde la hora j
         private int hora_desde; // j
         private double llegada_personas;
-        // Probabilidad de accion
+        private int prob_pedido;
+        private int prob_devolucion;
+        private int prob_consulta;
         private int consulta_min;
-        private int contulta_max;
+        private int consulta_max;
         private int porc_retiran_biblo;
         private int tiempo_uso_instalacion;
 
@@ -36,6 +38,86 @@ namespace TP5
         private void Form1_Load(object sender, EventArgs e)
         {
 
+        }
+
+        private bool validar_campos()
+        {
+            if (string.IsNullOrEmpty(txt_tiempo_simular.Text) || string.IsNullOrEmpty(txt_consulta_min.Text) || string.IsNullOrEmpty(txt_consulta_max.Text) 
+                || string.IsNullOrEmpty(txt_probabilidad_retirarse.Text) || string.IsNullOrEmpty(txt_tiempo_uso_instalacion.Text) || string.IsNullOrEmpty(txt_pedido.Text)
+                || string.IsNullOrEmpty(txt_devolucion.Text) || string.IsNullOrEmpty(txt_consulta.Text) || string.IsNullOrEmpty(txt_desde_hora.Text) 
+                || string.IsNullOrEmpty(txt_iteracciones.Text) || string.IsNullOrEmpty(txt_tiempo_llegadas.Text))
+            {
+                MessageBox.Show("Una de las entradas está vacía.");
+                return false;
+            }
+            else
+            {
+                reloj_max = int.Parse(txt_tiempo_simular.Text);
+                consulta_min = int.Parse(txt_consulta_min.Text);
+                consulta_max = int.Parse(txt_consulta_max.Text);
+                porc_retiran_biblo = int.Parse(txt_probabilidad_retirarse.Text);
+                tiempo_uso_instalacion = int.Parse(txt_tiempo_uso_instalacion.Text);
+                prob_pedido = int.Parse(txt_pedido.Text);
+                prob_devolucion = int.Parse(txt_devolucion.Text);
+                prob_consulta = int.Parse(txt_consulta.Text);
+                hora_desde = int.Parse(txt_desde_hora.Text);
+                cantidad_iteracciones = int.Parse(txt_iteracciones.Text);
+                llegada_personas = int.Parse(txt_tiempo_llegadas.Text);
+
+                if (!validar_probabilidades())
+                {
+                    MessageBox.Show("Las probabilidades no suman 100%.");
+                    return false;
+                }
+                if (!validar_desde_hasta_consultas())
+                {
+                    return false;
+                }
+                return true;
+            }
+        }
+
+        private bool validar_desde_hasta_consultas()
+        {
+            if (consulta_min > reloj_max)
+            {
+                MessageBox.Show("El tiempo mínimo de consulta no puede ser mayor al tiempo a simular.");
+                return false;
+            }
+            if (consulta_max < consulta_min)
+            {
+                MessageBox.Show("El tiempo máximo de consulta no puede ser menor al tiempo mínimo.");
+                return false;
+            }
+            if (consulta_max > reloj_max)
+            {
+                MessageBox.Show("El tiempo máximo de consulta no puede ser mayor al tiempo a simular.");
+                return false;
+            }
+            return true;
+        }
+
+        private bool validar_probabilidades()
+        {
+            int suma_prob = prob_pedido + prob_devolucion + prob_consulta;
+            if (suma_prob == 100)
+            {
+                return true;
+            } else
+            {
+                return false;
+            }
+        }
+
+        private void btn_simular_Click(object sender, EventArgs e)
+        {
+            if (validar_campos())
+            {
+                empleado1 = new Empleado();
+                empleado2 = new Empleado();
+                cargar_dt();
+                cargar_dgv(reloj_max);
+            } 
         }
 
         private void cargar_dt()
@@ -60,8 +142,9 @@ namespace TP5
             dataTable.Columns.Add("Tiempo permanencia");
         }
 
-        private void cargar_dgv(int X)
+        private void cargar_dgv(int reloj_max)
         {
+            int maximo_simulacion = 100000;
             string persona = "";
             int cont_personas_llegada = 0;
             int cont_personas_atendida = 0;
@@ -81,9 +164,8 @@ namespace TP5
             double fin_uso_instalacion = 0;
             int posicion_cola = 0;
             List<Cliente> clientes = new List<Cliente>();
-
-
-            for (int i = 0; i < X; i++)
+    
+            for (int i = 0; i < maximo_simulacion; i++)
             {
                 if (i != 0 && reloj % 4 == 0) {
                     proxima_llegada = calcular_proxima_llegada(proxima_llegada);
@@ -125,7 +207,7 @@ namespace TP5
                         posicion_cola = cola;
                         clientes[index_cliente].setPosicion_cola(posicion_cola);
                     }
-                    agregar_columnas_persona(persona, estado, reloj, fin_uso_instalacion, tipo_llegada, posicion_cola);
+                    //agregar_columnas_persona(persona, estado, reloj, fin_uso_instalacion, tipo_llegada, posicion_cola);
                     // Fin evento llegada
                 }
                 else
@@ -138,7 +220,7 @@ namespace TP5
                         empleado1.setLibre();
                         cont_personas_atendida++;
                         persona = "P" + cont_personas_atendida;
-                        eliminar_columnas_persona(persona);
+                        //eliminar_columnas_persona(persona);
                         if (cola > 0)
                         {
                             Cliente cliente_decola = clientes[0];
@@ -158,7 +240,7 @@ namespace TP5
                         empleado2.setLibre();
                         cont_personas_atendida++;
                         persona = "P" + cont_personas_atendida;
-                        eliminar_columnas_persona(persona);
+                        //eliminar_columnas_persona(persona);
                         if (cola > 0)
                         {
                             Cliente cliente_decola = clientes[0];
@@ -171,6 +253,7 @@ namespace TP5
                             estado = "SA E2";
                         }
                     }
+                    
                 }
 
                 dataTable.Rows.Add(i, evento, reloj, proxima_llegada, rnd_tipo_llegada, tipo_llegada, rnd_tiempo_atencion, tiempo_atencion, fin_atencion1, fin_atencion2, 0, empleado1.getEstado(), empleado2.getEstado(), cola, contador_atencion, tiempo_permanencia);
@@ -181,18 +264,14 @@ namespace TP5
                 tipo_llegada = "";
                 rnd_tiempo_atencion = 0;
                 tiempo_atencion = 0;
+
+                if (i == reloj_max)
+                {
+                    i = maximo_simulacion;
+                }
             }
 
             dgv_simulacion.DataSource = dataTable;
-        }
-
-        private void btn_simular_Click(object sender, EventArgs e)
-        {
-            empleado1 = new Empleado();
-            empleado2 = new Empleado();
-            int X = int.Parse(txt_X.Text);
-            cargar_dt();
-            cargar_dgv(X);
         }
 
         private void agregar_columnas_persona(string persona, string estado, double hora_llegada, double fin_uso_instalacion, string accion, int posicion_cola)
