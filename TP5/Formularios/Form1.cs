@@ -17,6 +17,16 @@ namespace TP5
         private Random random = new Random();
         private Empleado empleado1;
         private Empleado empleado2;
+        // Variables
+        private int reloj_max; // X
+        private int cantidad_iteracciones; // i iteracciones desde la hora j
+        private int hora_desde; // j
+        private double llegada_personas;
+        // Probabilidad de accion
+        private int consulta_min;
+        private int contulta_max;
+        private int porc_retiran_biblo;
+        private int tiempo_uso_instalacion;
 
         public Form1()
         {
@@ -67,11 +77,10 @@ namespace TP5
             int cola = 0;
             int contador_atencion = 0;
             double tiempo_permanencia = 0;
-            double aux_permanencia1 = 0;
-            double aux_permanencia2 = 0;
             string estado = "";
             double fin_uso_instalacion = 0;
             int posicion_cola = 0;
+            List<Cliente> clientes = new List<Cliente>();
 
 
             for (int i = 0; i < X; i++)
@@ -80,7 +89,6 @@ namespace TP5
                     proxima_llegada = calcular_proxima_llegada(proxima_llegada);
                 }
                 
-
                 // Evento es llegada
                 if (evento == "Llegada")
                 {
@@ -88,16 +96,17 @@ namespace TP5
                     persona = "P" + cont_personas_llegada;
                     rnd_tipo_llegada = redondear(random.NextDouble());
                     tipo_llegada = calcular_tipo_llegada(rnd_tipo_llegada);
+                    clientes.Add(new Cliente(persona, reloj, tipo_llegada));
+                    int index_cliente = clientes.Count - 1;
                     if (empleado1.getEstado().Equals(Empleado.LIBRE))
                     {
                         empleado1.setOcupado();
                         rnd_tiempo_atencion = redondear(random.NextDouble());
                         tiempo_atencion = calcular_tiempo_atencion(tipo_llegada, rnd_tiempo_atencion);
                         fin_atencion1 = calcular_fin_atencion(reloj, tiempo_atencion);
-                        aux_permanencia1 = tiempo_permanencia; // no anda
+                        tiempo_permanencia += tiempo_atencion;
                         estado = "SA E1";
-                        
-
+                        clientes[index_cliente].setEstado(estado);
                     }
                     else if (empleado2.getEstado().Equals(Empleado.LIBRE))
                     {
@@ -105,14 +114,16 @@ namespace TP5
                         rnd_tiempo_atencion = redondear(random.NextDouble());
                         tiempo_atencion = calcular_tiempo_atencion(tipo_llegada, rnd_tiempo_atencion);
                         fin_atencion2 = calcular_fin_atencion(reloj, tiempo_atencion);
-                        aux_permanencia2 = tiempo_permanencia; // no anda
+                        tiempo_permanencia += tiempo_atencion;
                         estado = "SA E2";
+                        clientes[index_cliente].setEstado(estado);
                     }
                     else
                     {
                         cola++;
                         estado = "En espera";
                         posicion_cola = cola;
+                        clientes[index_cliente].setPosicion_cola(posicion_cola);
                     }
                     agregar_columnas_persona(persona, estado, reloj, fin_uso_instalacion, tipo_llegada, posicion_cola);
                     // Fin evento llegada
@@ -123,26 +134,42 @@ namespace TP5
                     if (empleado1.getEstado().Equals(Empleado.OCUPADO) && evento.Equals("Fin atencion E1"))
                     {
                         contador_atencion++;
-                        tiempo_permanencia += aux_permanencia1; // no anda
-                        aux_permanencia1 = 0;
                         fin_atencion1 = 0;
                         empleado1.setLibre();
                         cont_personas_atendida++;
                         persona = "P" + cont_personas_atendida;
                         eliminar_columnas_persona(persona);
-                        // Debería ir a otro cliente si hay cola, sería un evento nuevo?
+                        if (cola > 0)
+                        {
+                            Cliente cliente_decola = clientes[0];
+                            cola--;
+                            empleado1.setOcupado();
+                            rnd_tiempo_atencion = redondear(random.NextDouble());
+                            tiempo_atencion = calcular_tiempo_atencion(cliente_decola.getAccion(), rnd_tiempo_atencion);
+                            fin_atencion1 = calcular_fin_atencion(reloj, tiempo_atencion);
+                            tiempo_permanencia += tiempo_atencion;
+                            estado = "SA E1";
+                        }
                     }
                     if (empleado2.getEstado().Equals(Empleado.OCUPADO) && evento.Equals("Fin atencion E2"))
                     {
                         contador_atencion++;
-                        tiempo_permanencia += aux_permanencia2; // no anda
-                        aux_permanencia2 = 0;
                         fin_atencion2 = 0;
                         empleado2.setLibre();
                         cont_personas_atendida++;
                         persona = "P" + cont_personas_atendida;
                         eliminar_columnas_persona(persona);
-                        // Debería ir a otro cliente si hay cola, sería un evento nuevo?
+                        if (cola > 0)
+                        {
+                            Cliente cliente_decola = clientes[0];
+                            cola--;
+                            empleado2.setOcupado();
+                            rnd_tiempo_atencion = redondear(random.NextDouble());
+                            tiempo_atencion = calcular_tiempo_atencion(cliente_decola.getAccion(), rnd_tiempo_atencion);
+                            fin_atencion2 = calcular_fin_atencion(reloj, tiempo_atencion);
+                            tiempo_permanencia += tiempo_atencion;
+                            estado = "SA E2";
+                        }
                     }
                 }
 
@@ -194,9 +221,11 @@ namespace TP5
         private void eliminar_columnas_persona(string persona)
         {
             int indice_columna = dataTable.Columns.IndexOf("Estado (" + persona + ")");
-            for (int i = 0; i < 5; i++)
-            {
-                dataTable.Columns.RemoveAt(indice_columna);
+            if (dataTable.Columns.Count > 16) {
+                for (int i = 0; i < 5; i++)
+                {
+                    dataTable.Columns.RemoveAt(indice_columna);
+                }
             }
         }
 
