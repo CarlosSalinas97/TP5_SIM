@@ -30,7 +30,10 @@ namespace TP5.Clases
         private string estado = "";
         private int posicion_cola = 0;
         private double rnd_permanencia = 0;
-        private List<Cliente> clientes_en_biblioteca = new List<Cliente>();
+        private List<Cliente> clientes_llegaron_biblioteca = new List<Cliente>();
+        private List<Cliente> clientes_permanencen_biblioteca = new List<Cliente>();
+        private List<Cliente> clientes_en_cola = new List<Cliente>();
+        private int puntero_lista_llegaron = 0;
 
         public Simulacion(Form1 formulario)
         {
@@ -81,8 +84,6 @@ namespace TP5.Clases
                     simular_fin_atencion();
                 }
 
-
-
                 dataTable.Rows.Add(i, evento, reloj, proxima_llegada, rnd_tipo_llegada, tipo_llegada, rnd_tiempo_atencion, tiempo_atencion, empleado1.getFinAtencion(), empleado2.getFinAtencion(), rnd_permanencia, empleado1.getEstado(), empleado2.getEstado(), cola, contador_atencion, tiempo_permanencia);
 
                 reloj = salto_reloj(proxima_llegada, empleado1.getFinAtencion(), empleado2.getFinAtencion());
@@ -101,7 +102,7 @@ namespace TP5.Clases
                 
             }
 
-            agregar_columnas_persona(clientes_en_biblioteca);
+            agregar_columnas_persona(clientes_permanencen_biblioteca);
             return dataTable;
         }
 
@@ -115,26 +116,30 @@ namespace TP5.Clases
             tipo_llegada = calcular_tipo_llegada(rnd_tipo_llegada);
 
             // Agrega una instancia de cliente dentro de la lista de clientes en la biblioteca.
-            int tamano_lista = clientes_en_biblioteca.Count;
-            clientes_en_biblioteca.Add(new Cliente(tamano_lista, cont_personas_llegada, reloj, tipo_llegada));   
+            clientes_llegaron_biblioteca.Add(new Cliente(puntero_lista_llegaron, cont_personas_llegada, reloj, tipo_llegada));  
 
             if (empleado1.getEstado().Equals(Empleado.LIBRE))
             {
-                atencion_empleado(empleado1, tamano_lista);
+                atencion_empleado(empleado1, puntero_lista_llegaron);
             }
 
             else if (empleado2.getEstado().Equals(Empleado.LIBRE))
             {
-                atencion_empleado(empleado2, tamano_lista);
+                atencion_empleado(empleado2, puntero_lista_llegaron);
             }
 
             else
             {
                 cola++;
                 estado = "En espera";
-                posicion_cola = cola;
-                clientes_en_biblioteca[tamano_lista - 1].setPosicion_cola(posicion_cola);
+                clientes_en_cola.Add(clientes_llegaron_biblioteca[puntero_lista_llegaron]);
             }
+
+            // Se agrega el cliente a la lista de clientes que permanencen en la biblioteca
+            clientes_permanencen_biblioteca.Add(clientes_llegaron_biblioteca[puntero_lista_llegaron]);
+
+            // Por cada cliente que llega, el puntero se incrementa para apuntar al siguiente en la lista.
+            puntero_lista_llegaron++;
         }
 
         private void simular_fin_atencion()
@@ -144,18 +149,7 @@ namespace TP5.Clases
                 liberar_empleado(empleado1);
                 if (cola > 0)
                 {
-                    Cliente cliente_decola = clientes_en_biblioteca[0];
-                    empleado1.setClienteAtendiendo(0);
-                    cola--;
-                    clientes_en_biblioteca.Remove(cliente_decola);
-
-
-                    /*empleado1.setOcupado();
-                    rnd_tiempo_atencion = redondear(random.NextDouble());
-                    tiempo_atencion = calcular_tiempo_atencion(cliente_decola.getAccion(), rnd_tiempo_atencion);
-                    empleado1.setFinAtencion(calcular_fin_atencion(reloj, tiempo_atencion));
-                    tiempo_permanencia += tiempo_atencion;
-                    estado = "SA E1";*/
+                    atender_cliente_cola(empleado1);
                 }
             }
             if (empleado2.getEstado().Equals(Empleado.OCUPADO) && evento.Equals("Fin atencion E2"))
@@ -163,16 +157,7 @@ namespace TP5.Clases
                 liberar_empleado(empleado2);
                 if (cola > 0)
                 {
-                    Cliente cliente_decola = clientes_en_biblioteca[0];
-                    empleado2.setClienteAtendiendo(0);
-                    cola--;
-                    clientes_en_biblioteca.Remove(cliente_decola);
-                    empleado2.setOcupado();
-                    rnd_tiempo_atencion = redondear(random.NextDouble());
-                    tiempo_atencion = calcular_tiempo_atencion(cliente_decola.getAccion(), rnd_tiempo_atencion);
-                    empleado2.setFinAtencion(calcular_fin_atencion(reloj, tiempo_atencion));
-                    tiempo_permanencia += tiempo_atencion;
-                    estado = "SA E2";
+                    atender_cliente_cola(empleado2);
                 }
             }
         }
@@ -187,12 +172,10 @@ namespace TP5.Clases
 
             // Establecer estado a cliente
             estado = "SA " + empleado.getNombre();
-            clientes_en_biblioteca[index_cliente].setEstado(estado);
-
-            // Random tiempo de atencion
-            rnd_tiempo_atencion = redondear(random.NextDouble());
+            clientes_llegaron_biblioteca[index_cliente].setEstado(estado);
 
             // Calcular tiempo de atencion
+            rnd_tiempo_atencion = redondear(random.NextDouble());
             tiempo_atencion = calcular_tiempo_atencion(tipo_llegada, rnd_tiempo_atencion);
 
             // Setear fin de atencion a empleado
@@ -206,7 +189,7 @@ namespace TP5.Clases
         {
             // Obtiene el cliente atendido
             int index_cliente_atendido = empleado.getClienteAtendiendo();
-            Cliente cliente_atendido = clientes_en_biblioteca[index_cliente_atendido];
+            Cliente cliente_atendido = clientes_llegaron_biblioteca[index_cliente_atendido];
 
             // Establece si el cliente usará la instalacion (en el caso de pedir libro)
             calcular_cliente_usa_instalacion(cliente_atendido, index_cliente_atendido);
@@ -219,6 +202,22 @@ namespace TP5.Clases
             empleado.setFinAtencion(0);
         }
 
+        private void atender_cliente_cola(Empleado empleado)
+        {
+            // Obtiene el cliente primero en la cola
+            Cliente cliente_decola = clientes_en_cola[0];
+
+            // Obtiene el index del cliente 
+            int index_cliente = clientes_llegaron_biblioteca.IndexOf(cliente_decola);
+
+            // Lo tiene que atender el empleado
+            atencion_empleado(empleado, index_cliente);
+
+            // Se reduce el tamaño de la cola, y se elimina el cliente que esta siendo atendido
+            cola--;
+            clientes_en_cola.Remove(cliente_decola);
+        }
+
         private void calcular_cliente_usa_instalacion(Cliente cliente, int index_cliente)
         {
             if (cliente.getAccion().Equals("Pedido"))
@@ -227,14 +226,19 @@ namespace TP5.Clases
                 rnd_permanencia = redondear(random.NextDouble());
                 if (calcular_probabilidad_permanencia(rnd_permanencia))
                 {
-                    clientes_en_biblioteca[index_cliente].setEstado(Cliente.LEYENDO);
-                    clientes_en_biblioteca[index_cliente].setFin_uso_instalacion((reloj + formulario.tiempo_uso_instalacion).ToString());
+                    clientes_llegaron_biblioteca[index_cliente].setEstado(Cliente.LEYENDO);
+                    clientes_llegaron_biblioteca[index_cliente].setFin_uso_instalacion((reloj + formulario.tiempo_uso_instalacion).ToString());
+                }
+                else
+                {
+                    // El cliente no se queda a leer. Se elimina de la lista de clientes que permanencen en biblioteca
+                    clientes_permanencen_biblioteca.Remove(cliente);
                 }
             }
             else
             {
-                // El cliente fue a devolver o consultar. Se elimina de la lista de clientes en biblioteca
-                clientes_en_biblioteca.Remove(cliente);
+                // El cliente fue a devolver o consultar. Se elimina de la lista de clientes que permanencen en biblioteca
+                clientes_permanencen_biblioteca.Remove(cliente);
             }
         }
  
@@ -258,10 +262,6 @@ namespace TP5.Clases
                 DataColumn column_accion = new DataColumn("Accion (" + persona + ")");
                 column_accion.DefaultValue = cliente.getAccion();
                 dataTable.Columns.Add(column_accion);
-
-                DataColumn column_pos_cola = new DataColumn("Posicion en cola (" + persona + ")");
-                column_pos_cola.DefaultValue = cliente.getPosicion_cola();
-                dataTable.Columns.Add(column_pos_cola);
             }
         }
 
