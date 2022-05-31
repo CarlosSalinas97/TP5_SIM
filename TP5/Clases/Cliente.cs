@@ -14,6 +14,7 @@ namespace TP5.Clases
 
         public static string LEYENDO = "Leyendo";
 
+        private int indice_lista;
         private string nombre;
         private string estado;
         private string fin_uso_instalacion;
@@ -21,12 +22,18 @@ namespace TP5.Clases
         private string accion;
         private string posicion_cola;
 
-        public Cliente(string nombre, double hs_llegada, string accion)
+        public Cliente(int indice_lista, int contador, double hs_llegada, string accion)
         {
-            this.nombre = nombre;
+            this.indice_lista = indice_lista;
+            this.nombre = "P" + contador.ToString();
             this.hs_llegada = hs_llegada.ToString();
             this.accion = accion;
         }
+
+        // Indice lista
+        public void setIndiceCola(int value) { this.indice_lista = value; }
+
+        public int getIndiceCola() { return this.indice_lista; }
 
         // Nombre
         public string getNombre()
