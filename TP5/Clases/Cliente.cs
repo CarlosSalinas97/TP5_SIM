@@ -20,7 +20,7 @@ namespace TP5.Clases
         private string fin_uso_instalacion;
         private string hs_llegada;
         private string accion;
-        private string posicion_cola;
+        private bool pidio_libro;
 
         public Cliente(int indice_lista, int contador, double hs_llegada, string accion)
         {
@@ -91,36 +91,39 @@ namespace TP5.Clases
         }
 
         // Posicion cola
-        public string getPosicion_cola()
+        public bool getPidioLibro()
         {
-            return posicion_cola;
+            return this.pidio_libro;
         }
 
-        public void setPosicion_cola(int value)
+        public void setPidioLibro(bool value)
         {
-            posicion_cola = value.ToString();
+            pidio_libro = value;
         }
+        
 
-        // Equals
-        public override bool Equals(object obj)
-        {
-            var cliente = obj as Cliente;
-            return cliente != null &&
-                   nombre == cliente.nombre &&
-                   estado == cliente.estado;
-        }
 
-        // Hashcode
         public override int GetHashCode()
         {
-            var hashCode = -1442448609;
+            var hashCode = 784819246;
+            hashCode = hashCode * -1521134295 + indice_lista.GetHashCode();
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(nombre);
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(estado);
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(fin_uso_instalacion);
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(hs_llegada);
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(accion);
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(posicion_cola);
+            hashCode = hashCode * -1521134295 + pidio_libro.GetHashCode();
             return hashCode;
+        }
+
+        public override bool Equals(object obj)
+        {
+            var cliente = obj as Cliente;
+            return cliente != null &&
+                   indice_lista == cliente.indice_lista &&
+                   nombre == cliente.nombre &&
+                   estado == cliente.estado &&
+                   pidio_libro == cliente.pidio_libro;
         }
     }
 }

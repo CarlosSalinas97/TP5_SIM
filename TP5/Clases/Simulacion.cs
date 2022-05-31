@@ -16,7 +16,6 @@ namespace TP5.Clases
         private Form1 formulario;
         private int maximo_simulacion = 100000;
         private int cont_personas_llegada = 0;
-        private int cont_personas_atendida = 0;
         private string evento = "";
         private double reloj = 0;
         private double proxima_llegada = 0;
@@ -28,12 +27,12 @@ namespace TP5.Clases
         private int contador_atencion = 0;
         private double tiempo_permanencia = 0;
         private string estado = "";
-        private int posicion_cola = 0;
         private double rnd_permanencia = 0;
         private List<Cliente> clientes_llegaron_biblioteca = new List<Cliente>();
         private List<Cliente> clientes_permanencen_biblioteca = new List<Cliente>();
         private List<Cliente> clientes_en_cola = new List<Cliente>();
         private int puntero_lista_llegaron = 0;
+        private double prox_fin_uso_instalacion = 0;
 
         public Simulacion(Form1 formulario)
         {
@@ -77,17 +76,22 @@ namespace TP5.Clases
 
                 if (evento == "Llegada")
                 {
-                    simular_llegada();
+                    simular_llegada(null);
                 }
-                else
+                else if (evento == "Fin uso instalación")
+                {
+                    simular_fin_uso_instalacion();
+
+                } else
                 {
                     simular_fin_atencion();
                 }
 
                 dataTable.Rows.Add(i, evento, reloj, proxima_llegada, rnd_tipo_llegada, tipo_llegada, rnd_tiempo_atencion, tiempo_atencion, empleado1.getFinAtencion(), empleado2.getFinAtencion(), rnd_permanencia, empleado1.getEstado(), empleado2.getEstado(), cola, contador_atencion, tiempo_permanencia);
 
-                reloj = salto_reloj(proxima_llegada, empleado1.getFinAtencion(), empleado2.getFinAtencion());
-                evento = calcular_evento(reloj, proxima_llegada, empleado1.getFinAtencion(), empleado2.getFinAtencion());
+                prox_fin_uso_instalacion = proximo_fin_uso_instalacion();
+                reloj = salto_reloj(proxima_llegada, empleado1.getFinAtencion(), empleado2.getFinAtencion(), prox_fin_uso_instalacion);
+                evento = calcular_evento(reloj, proxima_llegada, empleado1.getFinAtencion(), empleado2.getFinAtencion(), prox_fin_uso_instalacion);
                 rnd_tipo_llegada = 0;
                 tipo_llegada = "";
                 rnd_tiempo_atencion = 0;
@@ -106,17 +110,23 @@ namespace TP5.Clases
             return dataTable;
         }
 
-        private void simular_llegada()
+        private void simular_llegada(Cliente cliente)
         {
-            // Incrementa la cantidad de personas que llegaron
-            cont_personas_llegada++;
+            if (cliente == null)
+            {
+                // Incrementa la cantidad de personas que llegaron
+                cont_personas_llegada++;
 
-            // Establece a que vino el cliente
-            rnd_tipo_llegada = redondear(random.NextDouble());
-            tipo_llegada = calcular_tipo_llegada(rnd_tipo_llegada);
+                // Establece a que vino el cliente
+                rnd_tipo_llegada = redondear(random.NextDouble());
+                tipo_llegada = calcular_tipo_llegada(rnd_tipo_llegada);
 
-            // Agrega una instancia de cliente dentro de la lista de clientes en la biblioteca.
-            clientes_llegaron_biblioteca.Add(new Cliente(puntero_lista_llegaron, cont_personas_llegada, reloj, tipo_llegada));  
+                // Agrega una instancia de cliente dentro de la lista de clientes en la biblioteca.
+                clientes_llegaron_biblioteca.Add(new Cliente(puntero_lista_llegaron, cont_personas_llegada, reloj, tipo_llegada));
+            } else
+            {
+                puntero_lista_llegaron = cliente.getIndiceCola();
+            }
 
             if (empleado1.getEstado().Equals(Empleado.LIBRE))
             {
@@ -132,6 +142,7 @@ namespace TP5.Clases
             {
                 cola++;
                 estado = "En espera";
+                clientes_llegaron_biblioteca[puntero_lista_llegaron].setEstado(estado);
                 clientes_en_cola.Add(clientes_llegaron_biblioteca[puntero_lista_llegaron]);
             }
 
@@ -176,6 +187,7 @@ namespace TP5.Clases
 
             // Calcular tiempo de atencion
             rnd_tiempo_atencion = redondear(random.NextDouble());
+            tipo_llegada = clientes_llegaron_biblioteca[index_cliente].getAccion();
             tiempo_atencion = calcular_tiempo_atencion(tipo_llegada, rnd_tiempo_atencion);
 
             // Setear fin de atencion a empleado
@@ -202,6 +214,27 @@ namespace TP5.Clases
             empleado.setFinAtencion(0);
         }
 
+        private void simular_fin_uso_instalacion()
+        {
+            foreach(Cliente cliente in clientes_permanencen_biblioteca)
+            {
+                if (cliente.getFin_uso_instalacion() != null && double.Parse(cliente.getFin_uso_instalacion()) == reloj)
+                {
+                    
+                    clientes_llegaron_biblioteca.Remove(cliente);
+                    int puntero_lista = clientes_llegaron_biblioteca.Count - 1;
+                    clientes_permanencen_biblioteca.Remove(cliente);
+                    cliente.setIndiceCola(puntero_lista);
+                    cliente.setFin_uso_instalacion(0.ToString());
+                    cliente.setAccion("Devolucion");
+                    clientes_llegaron_biblioteca.Add(cliente);
+                    simular_llegada(cliente);
+                    break;
+                }
+            }
+
+        }
+
         private void atender_cliente_cola(Empleado empleado)
         {
             // Obtiene el cliente primero en la cola
@@ -220,7 +253,7 @@ namespace TP5.Clases
 
         private void calcular_cliente_usa_instalacion(Cliente cliente, int index_cliente)
         {
-            if (cliente.getAccion().Equals("Pedido"))
+            if (cliente.getAccion().Equals("Pedido") && !cliente.getPidioLibro()) 
             {
                 // Significa que el cliente hizo un pedido y se realiza el random para determinar si se queda.
                 rnd_permanencia = redondear(random.NextDouble());
@@ -228,6 +261,8 @@ namespace TP5.Clases
                 {
                     clientes_llegaron_biblioteca[index_cliente].setEstado(Cliente.LEYENDO);
                     clientes_llegaron_biblioteca[index_cliente].setFin_uso_instalacion((reloj + formulario.tiempo_uso_instalacion).ToString());
+                    cliente.setPidioLibro(true);
+                    tiempo_permanencia += formulario.tiempo_uso_instalacion;
                 }
                 else
                 {
@@ -265,15 +300,28 @@ namespace TP5.Clases
             }
         }
 
-        private double salto_reloj(double proxima_llegada, double fin_atencion1, double fin_atencion2)
+        private double proximo_fin_uso_instalacion()
+        {
+            double min = 99999;
+            foreach(Cliente cliente in clientes_permanencen_biblioteca) {
+                if (cliente.getFin_uso_instalacion() != null && double.Parse(cliente.getFin_uso_instalacion()) < min)
+                {
+                    min = double.Parse(cliente.getFin_uso_instalacion());
+                }
+            }
+            return min;
+        }
+
+        private double salto_reloj(double proxima_llegada, double fin_atencion1, double fin_atencion2, double fin_uso_instalacion)
         {
             // Calcula cual será el proximo salto que hará el reloj. Siempre debe saltar al evento más proximo.
             fin_atencion1 = fin_atencion1 == 0 ? 999999 : fin_atencion1;
             fin_atencion2 = fin_atencion2 == 0 ? 999999 : fin_atencion2;
-            return Math.Min(proxima_llegada, Math.Min(fin_atencion1, fin_atencion2));
+            fin_uso_instalacion = fin_uso_instalacion == 0 ? 999999 : fin_uso_instalacion;
+            return Math.Min(proxima_llegada, Math.Min(fin_uso_instalacion, Math.Min(fin_atencion1, fin_atencion2)));
         }
 
-        private string calcular_evento(double proximo_reloj, double proxima_llegada, double fin_atencion1, double fin_atencion2)
+        private string calcular_evento(double proximo_reloj, double proxima_llegada, double fin_atencion1, double fin_atencion2, double fin_uso_instalacion)
         {
             string proximo_evento = "";
             if (proximo_reloj == proxima_llegada)
@@ -287,6 +335,10 @@ namespace TP5.Clases
             if (proximo_reloj == fin_atencion2)
             {
                 proximo_evento = "Fin atencion E2";
+            }
+            if (proximo_reloj == fin_uso_instalacion)
+            {
+                proximo_evento = "Fin uso instalación";
             }
             return proximo_evento;
         }
