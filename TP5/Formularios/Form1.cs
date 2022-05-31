@@ -119,7 +119,7 @@ namespace TP5
             {
                 Simulacion simulacion = new Simulacion(this);
                 DataTable dt = simulacion.generar_simulacion();
-                DataTable dt2 = new DataTable();                
+                DataTable dt2 = new DataTable();                   
                 int fila = 0;
 
                 foreach (DataColumn dataColumn in dt.Columns)
@@ -144,7 +144,25 @@ namespace TP5
                     }                    
                 }
 
-                dt2.ImportRow(dt.Rows[dt.Rows.Count - 1]);
+                DataRow dr = dt.Rows[dt.Rows.Count - 1];
+                dt2.ImportRow(dr);
+
+                double promedio = 0;
+                double tiempoPromedio = double.Parse(dr[15].ToString());
+                double contadorAtencion = double.Parse(dr[14].ToString());
+
+                if (dr[11].ToString() == "Ocupado" )
+                {
+                    contadorAtencion += 1;                    
+                }
+                if (dr[12].ToString() == "Ocupado")
+                {
+                    contadorAtencion += 1;
+                }
+
+                promedio = tiempoPromedio / contadorAtencion;
+
+                MessageBox.Show("Promedio de permanencia = " + Math.Truncate(promedio * 100) / 100);
 
                 dgv_simulacion.DataSource = dt2;
             } 
