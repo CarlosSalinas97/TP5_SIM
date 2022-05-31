@@ -16,7 +16,7 @@ namespace TP5
         // Variables
         public int reloj_max; // X
         public int cantidad_iteracciones; // i iteracciones desde la hora j
-        public int hora_desde; // j
+        public double hora_desde; // j
         public double llegada_personas;
         public double prob_pedido;
         public double prob_devolucion;
@@ -114,11 +114,39 @@ namespace TP5
         }
 
         private void btn_simular_Click(object sender, EventArgs e)
-        {
+        {            
             if (validar_campos())
             {
                 Simulacion simulacion = new Simulacion(this);
-                dgv_simulacion.DataSource = simulacion.generar_simulacion();
+                DataTable dt = simulacion.generar_simulacion();
+                DataTable dt2 = new DataTable();                
+                int fila = 0;
+
+                foreach (DataColumn dataColumn in dt.Columns)
+                {
+                    dt2.Columns.Add(dataColumn.ColumnName);
+                }
+
+                foreach (DataRow row in dt.Rows)
+                {
+                    if (double.Parse(row[2].ToString()) >= hora_desde)
+                    {
+                        fila = int.Parse(row[0].ToString());
+                        break;
+                    }                    
+                }
+
+                for (int i = fila; i < fila + cantidad_iteracciones; i++)
+                {
+                    if (i < dt.Rows.Count-1)
+                    {
+                        dt2.ImportRow(dt.Rows[i]);
+                    }                    
+                }
+
+                dt2.ImportRow(dt.Rows[dt.Rows.Count - 1]);
+
+                dgv_simulacion.DataSource = dt2;
             } 
         }
     }
