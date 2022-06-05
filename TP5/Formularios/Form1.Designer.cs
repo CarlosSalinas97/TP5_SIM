@@ -50,17 +50,24 @@
             this.txt_devolucion = new System.Windows.Forms.MaskedTextBox();
             this.txt_consulta = new System.Windows.Forms.MaskedTextBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
-            this.label4 = new System.Windows.Forms.Label();
+            this.label_desde = new System.Windows.Forms.Label();
+            this.label_iteracciones = new System.Windows.Forms.Label();
             this.txt_desde_hora = new System.Windows.Forms.MaskedTextBox();
             this.txt_iteracciones = new System.Windows.Forms.MaskedTextBox();
             this.label5 = new System.Windows.Forms.Label();
             this.txt_tiempo_llegadas = new System.Windows.Forms.MaskedTextBox();
+            this.label6 = new System.Windows.Forms.Label();
+            this.checkbox_columnas = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.dgv_simulacion)).BeginInit();
             this.SuspendLayout();
             // 
             // dgv_simulacion
             // 
+            this.dgv_simulacion.AllowUserToAddRows = false;
+            this.dgv_simulacion.AllowUserToDeleteRows = false;
+            this.dgv_simulacion.AllowUserToResizeColumns = false;
+            this.dgv_simulacion.AllowUserToResizeRows = false;
+            this.dgv_simulacion.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
             this.dgv_simulacion.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgv_simulacion.Location = new System.Drawing.Point(12, 125);
             this.dgv_simulacion.Name = "dgv_simulacion";
@@ -270,30 +277,30 @@
             this.label1.TabIndex = 19;
             this.label1.Text = "Vista";
             // 
-            // label2
+            // label_desde
             // 
-            this.label2.AutoSize = true;
-            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(893, 56);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(103, 20);
-            this.label2.TabIndex = 20;
-            this.label2.Text = "Desde (min.):";
+            this.label_desde.AutoSize = true;
+            this.label_desde.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label_desde.Location = new System.Drawing.Point(893, 50);
+            this.label_desde.Name = "label_desde";
+            this.label_desde.Size = new System.Drawing.Size(103, 20);
+            this.label_desde.TabIndex = 20;
+            this.label_desde.Text = "Desde (min.):";
             // 
-            // label4
+            // label_iteracciones
             // 
-            this.label4.AutoSize = true;
-            this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label4.Location = new System.Drawing.Point(896, 90);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(100, 20);
-            this.label4.TabIndex = 21;
-            this.label4.Text = "Iteracciones:";
+            this.label_iteracciones.AutoSize = true;
+            this.label_iteracciones.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label_iteracciones.Location = new System.Drawing.Point(904, 74);
+            this.label_iteracciones.Name = "label_iteracciones";
+            this.label_iteracciones.Size = new System.Drawing.Size(92, 20);
+            this.label_iteracciones.TabIndex = 21;
+            this.label_iteracciones.Text = "Iteraciones:";
             // 
             // txt_desde_hora
             // 
             this.txt_desde_hora.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txt_desde_hora.Location = new System.Drawing.Point(1002, 52);
+            this.txt_desde_hora.Location = new System.Drawing.Point(1002, 47);
             this.txt_desde_hora.Name = "txt_desde_hora";
             this.txt_desde_hora.Size = new System.Drawing.Size(47, 26);
             this.txt_desde_hora.TabIndex = 22;
@@ -302,7 +309,7 @@
             // txt_iteracciones
             // 
             this.txt_iteracciones.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txt_iteracciones.Location = new System.Drawing.Point(1002, 87);
+            this.txt_iteracciones.Location = new System.Drawing.Point(1002, 71);
             this.txt_iteracciones.Name = "txt_iteracciones";
             this.txt_iteracciones.Size = new System.Drawing.Size(72, 26);
             this.txt_iteracciones.TabIndex = 23;
@@ -327,17 +334,42 @@
             this.txt_tiempo_llegadas.TabIndex = 25;
             this.txt_tiempo_llegadas.Text = "4";
             // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label6.Location = new System.Drawing.Point(843, 97);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(210, 20);
+            this.label6.TabIndex = 26;
+            this.label6.Text = "Mostrar columnas de estado";
+            // 
+            // checkbox_columnas
+            // 
+            this.checkbox_columnas.AutoSize = true;
+            this.checkbox_columnas.Checked = true;
+            this.checkbox_columnas.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkbox_columnas.Font = new System.Drawing.Font("Microsoft Sans Serif", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.checkbox_columnas.Location = new System.Drawing.Point(1059, 102);
+            this.checkbox_columnas.Name = "checkbox_columnas";
+            this.checkbox_columnas.Size = new System.Drawing.Size(15, 14);
+            this.checkbox_columnas.TabIndex = 27;
+            this.checkbox_columnas.UseVisualStyleBackColor = true;
+            this.checkbox_columnas.CheckedChanged += new System.EventHandler(this.checkbox_columnas_CheckedChanged);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1478, 833);
+            this.Controls.Add(this.checkbox_columnas);
+            this.Controls.Add(this.label6);
             this.Controls.Add(this.txt_tiempo_llegadas);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.txt_iteracciones);
             this.Controls.Add(this.txt_desde_hora);
-            this.Controls.Add(this.label4);
-            this.Controls.Add(this.label2);
+            this.Controls.Add(this.label_iteracciones);
+            this.Controls.Add(this.label_desde);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.txt_consulta);
             this.Controls.Add(this.txt_devolucion);
@@ -394,12 +426,14 @@
         private System.Windows.Forms.MaskedTextBox txt_devolucion;
         private System.Windows.Forms.MaskedTextBox txt_consulta;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Label label_desde;
+        private System.Windows.Forms.Label label_iteracciones;
         private System.Windows.Forms.MaskedTextBox txt_desde_hora;
         private System.Windows.Forms.MaskedTextBox txt_iteracciones;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.MaskedTextBox txt_tiempo_llegadas;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.CheckBox checkbox_columnas;
     }
 }
 

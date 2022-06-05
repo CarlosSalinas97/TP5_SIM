@@ -32,6 +32,12 @@ namespace TP5.Clases
         private List<Cliente> clientes_permanencen_biblioteca = new List<Cliente>();
         private List<Cliente> clientes_en_cola = new List<Cliente>();
         private double prox_fin_uso_instalacion = 0;
+        private Cliente proximo_fin_atencion1;
+        private Cliente proximo_fin_atencion2;
+        private Cliente proximo_fin_instalacion;
+        private double proximo_reloj_fin_atencion1;
+        private double proximo_reloj_fin_atencion2;
+        private double proximo_reloj_fin_instalacion;
 
         public Simulacion(Form1 formulario)
         {
@@ -83,28 +89,35 @@ namespace TP5.Clases
             variables_imprimir[14] = contador_atencion;
             variables_imprimir[15] = tiempo_permanencia;
 
-            // For para saber cuantas columnas mas agregar
-            int j = 16;
-            for (int k = 0; k < clientes_permanencen_biblioteca.Count; k++)
+            // Validacion desde formulario (checkbox)
+            if (formulario.mostrar_columnas_estado)
             {
-                Cliente cliente = clientes_permanencen_biblioteca[k];
-                if (cliente.getEnInstalacion()) {
-                    variables_imprimir[j] = cliente.getEstado();
-                    j++;
-                    variables_imprimir[j] = cliente.getHs_llegada();
-                    j++;
-                    variables_imprimir[j] = cliente.getFin_uso_instalacion();
-                    j++;
-                    variables_imprimir[j] = cliente.getAccion();
-                    j++;
-                } else
+                // For para saber cuantas columnas mas agregar
+                int j = 16;
+                for (int k = 0; k < clientes_permanencen_biblioteca.Count; k++)
                 {
-                    j++;
-                    j++;
-                    j++;
-                    j++;
+                    Cliente cliente = clientes_permanencen_biblioteca[k];
+                    if (cliente.getEnInstalacion())
+                    {
+                        variables_imprimir[j] = cliente.getEstado();
+                        j++;
+                        variables_imprimir[j] = cliente.getHs_llegada();
+                        j++;
+                        variables_imprimir[j] = cliente.getFin_uso_instalacion();
+                        j++;
+                        variables_imprimir[j] = cliente.getAccion();
+                        j++;
+                    }
+                    else
+                    {
+                        j++;
+                        j++;
+                        j++;
+                        j++;
+                    }
                 }
             }
+            
 
             dataTable.Rows.Add(variables_imprimir);
         }
@@ -138,7 +151,6 @@ namespace TP5.Clases
                 //dataTable.Rows.Add(i, evento, reloj, proxima_llegada, rnd_tipo_llegada, tipo_llegada, rnd_tiempo_atencion, tiempo_atencion, empleado1.getFinAtencion(), empleado2.getFinAtencion(), rnd_permanencia, empleado1.getEstado(), empleado2.getEstado(), cola, contador_atencion, tiempo_permanencia);
                 agregar_columnas_persona(clientes_permanencen_biblioteca);
                 cargar_fila(i);
-
 
                 prox_fin_uso_instalacion = proximo_fin_uso_instalacion();
                 reloj = salto_reloj(proxima_llegada, empleado1.getFinAtencion(), empleado2.getFinAtencion(), prox_fin_uso_instalacion);
@@ -198,7 +210,10 @@ namespace TP5.Clases
             }
 
             // Se agrega el cliente a la lista de clientes que permanencen en la biblioteca
-            clientes_permanencen_biblioteca.Add(cliente_iteraccion);
+            if (clientes_permanencen_biblioteca.Find(cli => cli.Equals(cliente_iteraccion)) == null)
+            {
+                clientes_permanencen_biblioteca.Add(cliente_iteraccion);
+            }
         }
 
         private void simular_fin_atencion()
@@ -324,31 +339,34 @@ namespace TP5.Clases
  
         private void agregar_columnas_persona(List<Cliente> clientes)
         {
-            foreach (Cliente cliente in clientes)
+            if (formulario.mostrar_columnas_estado)
             {
-                string persona = cliente.getNombre();
-                if (!dataTable.Columns.Contains("Estado (" + persona + ")"))
+                foreach (Cliente cliente in clientes)
                 {
-                    DataColumn column_estado = new DataColumn("Estado (" + persona + ")");
-                    dataTable.Columns.Add(column_estado);
-                }
+                    string persona = cliente.getNombre();
+                    if (!dataTable.Columns.Contains("Estado (" + persona + ")"))
+                    {
+                        DataColumn column_estado = new DataColumn("Estado (" + persona + ")");
+                        dataTable.Columns.Add(column_estado);
+                    }
 
-                if (!dataTable.Columns.Contains("Hs llegada (" + persona + ")"))
-                {
-                    DataColumn column_hs_llegada = new DataColumn("Hs llegada (" + persona + ")");
-                    dataTable.Columns.Add(column_hs_llegada);
-                }
+                    if (!dataTable.Columns.Contains("Hs llegada (" + persona + ")"))
+                    {
+                        DataColumn column_hs_llegada = new DataColumn("Hs llegada (" + persona + ")");
+                        dataTable.Columns.Add(column_hs_llegada);
+                    }
 
-                if (!dataTable.Columns.Contains("Fin uso instalacion (" + persona + ")"))
-                {
-                    DataColumn column_fin_uso_inst = new DataColumn("Fin uso instalacion (" + persona + ")");
-                    dataTable.Columns.Add(column_fin_uso_inst);
-                }
+                    if (!dataTable.Columns.Contains("Fin uso instalacion (" + persona + ")"))
+                    {
+                        DataColumn column_fin_uso_inst = new DataColumn("Fin uso instalacion (" + persona + ")");
+                        dataTable.Columns.Add(column_fin_uso_inst);
+                    }
 
-                if (!dataTable.Columns.Contains("Accion (" + persona + ")"))
-                {
-                    DataColumn column_accion = new DataColumn("Accion (" + persona + ")");
-                    dataTable.Columns.Add(column_accion);
+                    if (!dataTable.Columns.Contains("Accion (" + persona + ")"))
+                    {
+                        DataColumn column_accion = new DataColumn("Accion (" + persona + ")");
+                        dataTable.Columns.Add(column_accion);
+                    }
                 }
             }
         }

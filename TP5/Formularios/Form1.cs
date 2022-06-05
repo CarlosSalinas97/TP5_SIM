@@ -25,6 +25,7 @@ namespace TP5
         public double consulta_max;
         public double porc_retiran_biblo;
         public int tiempo_uso_instalacion;
+        public bool mostrar_columnas_estado = true;
 
         public Form1()
         {
@@ -119,15 +120,16 @@ namespace TP5
             {
                 Simulacion simulacion = new Simulacion(this);
                 DataTable dt = simulacion.generar_simulacion();
-                dgv_simulacion.DataSource = dt;
-                /*
+                //dgv_simulacion.DataSource = dt;
                 DataTable dt2 = new DataTable();                   
                 int fila = 0;
+                // Importa las columnas del DataTable Original
                 foreach (DataColumn dataColumn in dt.Columns)
                 {
                     dt2.Columns.Add(dataColumn.ColumnName);
                 }
 
+                // Obtiene las filas que no hay que filtrar (fila filtrada = no aparece)
                 foreach (DataRow row in dt.Rows)
                 {
                     if (double.Parse(row[2].ToString()) >= hora_desde)
@@ -137,6 +139,7 @@ namespace TP5
                     }                    
                 }
 
+                // Importa solo las filas no filtradas (fila filtrada = no aparece)
                 for (int i = fila; i < fila + cantidad_iteracciones; i++)
                 {
                     if (i < dt.Rows.Count-1)
@@ -145,8 +148,35 @@ namespace TP5
                     }                    
                 }
 
+                // Importa la ultima fila
                 DataRow dr = dt.Rows[dt.Rows.Count - 1];
                 dt2.ImportRow(dr);
+
+                // i = Filas, j = Columnas
+                int cantidad_columnas = dt2.Columns.Count;
+                int cantidad_filas = dt2.Rows.Count;
+                List<int> columnas_a_eliminar = new List<int>();
+                for (int j = 16; j < cantidad_columnas; j++)
+                {
+                    bool eliminar_columna = true;
+                    string nombre_columna = dt2.Columns[j].ColumnName;
+                    for (int i = 0; i < cantidad_filas; i++)
+                    {
+                        if (!string.IsNullOrEmpty(dt2.Rows[i][nombre_columna].ToString()))
+                        {
+                            eliminar_columna = false;
+                        }
+                    }
+
+                    if (eliminar_columna)
+                    {
+                        columnas_a_eliminar.Add(j);
+                    }
+                }
+
+                // Se eliminan las columnas de la lista. Se hace un reverse primero asi se eliminan de atras para delante y no modifica los indices de los que estan adelante
+                columnas_a_eliminar.Reverse();
+                columnas_a_eliminar.ForEach(index => dt2.Columns.RemoveAt(index));
 
                 double promedio = 0;
                 double tiempoPromedio = double.Parse(dr[15].ToString());
@@ -166,8 +196,12 @@ namespace TP5
                 MessageBox.Show("Promedio de permanencia = " + Math.Truncate(promedio * 100) / 100);
 
                 dgv_simulacion.DataSource = dt2;
-                */
             } 
+        }
+
+        private void checkbox_columnas_CheckedChanged(object sender, EventArgs e)
+        {
+            this.mostrar_columnas_estado = !this.mostrar_columnas_estado;
         }
     }
 }
