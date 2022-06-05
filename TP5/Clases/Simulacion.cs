@@ -31,7 +31,6 @@ namespace TP5.Clases
         private List<Cliente> clientes_llegaron_biblioteca = new List<Cliente>();
         private List<Cliente> clientes_permanencen_biblioteca = new List<Cliente>();
         private List<Cliente> clientes_en_cola = new List<Cliente>();
-        private int puntero_lista_llegaron = 0;
         private double prox_fin_uso_instalacion = 0;
 
         public Simulacion(Form1 formulario)
@@ -62,6 +61,54 @@ namespace TP5.Clases
             dataTable.Columns.Add("Tiempo permanencia");
         }
 
+        // Cargar filas de DataTable
+        private void cargar_fila(int i)
+        {
+            int contador_columnas = dataTable.Columns.Count;
+            Object[] variables_imprimir = new Object[contador_columnas];
+            variables_imprimir[0] = i;
+            variables_imprimir[1] = evento;
+            variables_imprimir[2] = reloj;
+            variables_imprimir[3] = proxima_llegada;
+            variables_imprimir[4] = rnd_tipo_llegada;
+            variables_imprimir[5] = tipo_llegada;
+            variables_imprimir[6] = rnd_tiempo_atencion;
+            variables_imprimir[7] = tiempo_atencion;
+            variables_imprimir[8] = empleado1.getFinAtencion();
+            variables_imprimir[9] = empleado2.getFinAtencion();
+            variables_imprimir[10] = rnd_permanencia;
+            variables_imprimir[11] = empleado1.getEstado();
+            variables_imprimir[12] = empleado2.getEstado();
+            variables_imprimir[13] = cola;
+            variables_imprimir[14] = contador_atencion;
+            variables_imprimir[15] = tiempo_permanencia;
+
+            // For para saber cuantas columnas mas agregar
+            int j = 16;
+            for (int k = 0; k < clientes_permanencen_biblioteca.Count; k++)
+            {
+                Cliente cliente = clientes_permanencen_biblioteca[k];
+                if (cliente.getEnInstalacion()) {
+                    variables_imprimir[j] = cliente.getEstado();
+                    j++;
+                    variables_imprimir[j] = cliente.getHs_llegada();
+                    j++;
+                    variables_imprimir[j] = cliente.getFin_uso_instalacion();
+                    j++;
+                    variables_imprimir[j] = cliente.getAccion();
+                    j++;
+                } else
+                {
+                    j++;
+                    j++;
+                    j++;
+                    j++;
+                }
+            }
+
+            dataTable.Rows.Add(variables_imprimir);
+        }
+
         public DataTable generar_simulacion()
         {
             generar_dt();
@@ -69,6 +116,7 @@ namespace TP5.Clases
 
             for (int i = 0; i < maximo_simulacion; i++)
             {
+                // Object[] variables_imprimir = new Object[dataTable.Columns.Count]; //Tiene que ser igual al tamaño de las columnas
                 if (i != 0 && reloj % formulario.llegada_personas == 0)
                 {
                     proxima_llegada = calcular_proxima_llegada(proxima_llegada);
@@ -87,7 +135,10 @@ namespace TP5.Clases
                     simular_fin_atencion();
                 }
 
-                dataTable.Rows.Add(i, evento, reloj, proxima_llegada, rnd_tipo_llegada, tipo_llegada, rnd_tiempo_atencion, tiempo_atencion, empleado1.getFinAtencion(), empleado2.getFinAtencion(), rnd_permanencia, empleado1.getEstado(), empleado2.getEstado(), cola, contador_atencion, tiempo_permanencia);
+                //dataTable.Rows.Add(i, evento, reloj, proxima_llegada, rnd_tipo_llegada, tipo_llegada, rnd_tiempo_atencion, tiempo_atencion, empleado1.getFinAtencion(), empleado2.getFinAtencion(), rnd_permanencia, empleado1.getEstado(), empleado2.getEstado(), cola, contador_atencion, tiempo_permanencia);
+                agregar_columnas_persona(clientes_permanencen_biblioteca);
+                cargar_fila(i);
+
 
                 prox_fin_uso_instalacion = proximo_fin_uso_instalacion();
                 reloj = salto_reloj(proxima_llegada, empleado1.getFinAtencion(), empleado2.getFinAtencion(), prox_fin_uso_instalacion);
@@ -106,51 +157,48 @@ namespace TP5.Clases
                 
             }
 
-            agregar_columnas_persona(clientes_permanencen_biblioteca);
+            
             return dataTable;
         }
 
         private void simular_llegada(Cliente cliente)
         {
+            Cliente cliente_iteraccion;
             if (cliente == null)
             {
-                // Incrementa la cantidad de personas que llegaron
+                // Incrementa la cantidad de personas que llegaron para asignarle el nro al nombre
                 cont_personas_llegada++;
 
                 // Establece a que vino el cliente
                 rnd_tipo_llegada = redondear(random.NextDouble());
                 tipo_llegada = calcular_tipo_llegada(rnd_tipo_llegada);
 
+                // Se crea el cliente
+                cliente_iteraccion = new Cliente(cont_personas_llegada, reloj, tipo_llegada);
+
                 // Agrega una instancia de cliente dentro de la lista de clientes en la biblioteca.
-                clientes_llegaron_biblioteca.Add(new Cliente(puntero_lista_llegaron, cont_personas_llegada, reloj, tipo_llegada));
+                clientes_llegaron_biblioteca.Add(cliente_iteraccion);
             } else
             {
-                puntero_lista_llegaron = cliente.getIndiceCola();
+                cliente_iteraccion = cliente;
             }
 
             if (empleado1.getEstado().Equals(Empleado.LIBRE))
             {
-                atencion_empleado(empleado1, puntero_lista_llegaron);
-            }
-
-            else if (empleado2.getEstado().Equals(Empleado.LIBRE))
+                atencion_empleado(empleado1, cliente_iteraccion);
+            } else if (empleado2.getEstado().Equals(Empleado.LIBRE))
             {
-                atencion_empleado(empleado2, puntero_lista_llegaron);
-            }
-
-            else
+                atencion_empleado(empleado2, cliente_iteraccion);
+            } else
             {
                 cola++;
                 estado = "En espera";
-                clientes_llegaron_biblioteca[puntero_lista_llegaron].setEstado(estado);
-                clientes_en_cola.Add(clientes_llegaron_biblioteca[puntero_lista_llegaron]);
+                clientes_llegaron_biblioteca.Find(cli => cli.Equals(cliente_iteraccion)).setEstado(estado);
+                clientes_en_cola.Add(cliente_iteraccion);
             }
 
             // Se agrega el cliente a la lista de clientes que permanencen en la biblioteca
-            clientes_permanencen_biblioteca.Add(clientes_llegaron_biblioteca[puntero_lista_llegaron]);
-
-            // Por cada cliente que llega, el puntero se incrementa para apuntar al siguiente en la lista.
-            puntero_lista_llegaron++;
+            clientes_permanencen_biblioteca.Add(cliente_iteraccion);
         }
 
         private void simular_fin_atencion()
@@ -173,21 +221,21 @@ namespace TP5.Clases
             }
         }
 
-        private void atencion_empleado(Empleado empleado, int index_cliente)
+        private void atencion_empleado(Empleado empleado, Cliente cliente)
         {
             // Se setea ocupado
             empleado.setOcupado();
 
             // Asignar cliente a empleado
-            empleado.setClienteAtendiendo(index_cliente);
+            empleado.setClienteAtendiendo(cliente);
 
             // Establecer estado a cliente
             estado = "SA " + empleado.getNombre();
-            clientes_llegaron_biblioteca[index_cliente].setEstado(estado);
+            clientes_llegaron_biblioteca.Find(cli => cli.Equals(cliente)).setEstado(estado);
 
             // Calcular tiempo de atencion
             rnd_tiempo_atencion = redondear(random.NextDouble());
-            tipo_llegada = clientes_llegaron_biblioteca[index_cliente].getAccion();
+            tipo_llegada = clientes_llegaron_biblioteca.Find(cli => cli.Equals(cliente)).getAccion();
             tiempo_atencion = calcular_tiempo_atencion(tipo_llegada, rnd_tiempo_atencion);
 
             // Setear fin de atencion a empleado
@@ -200,11 +248,10 @@ namespace TP5.Clases
         private void liberar_empleado(Empleado empleado)
         {
             // Obtiene el cliente atendido
-            int index_cliente_atendido = empleado.getClienteAtendiendo();
-            Cliente cliente_atendido = clientes_llegaron_biblioteca[index_cliente_atendido];
+            Cliente cliente_atendido = empleado.getClienteAtendiendo();
 
             // Establece si el cliente usará la instalacion (en el caso de pedir libro)
-            calcular_cliente_usa_instalacion(cliente_atendido, index_cliente_atendido);
+            calcular_cliente_usa_instalacion(cliente_atendido);
 
             // Incrementar acumulador de atencion
             contador_atencion++;
@@ -221,13 +268,12 @@ namespace TP5.Clases
                 if (cliente.getFin_uso_instalacion() != null && double.Parse(cliente.getFin_uso_instalacion()) == reloj)
                 {
                     
-                    clientes_llegaron_biblioteca.Remove(cliente);
-                    int puntero_lista = clientes_llegaron_biblioteca.Count - 1;
-                    clientes_permanencen_biblioteca.Remove(cliente);
-                    cliente.setIndiceCola(puntero_lista);
+                    //clientes_llegaron_biblioteca.Remove(cliente);
+                    //int puntero_lista = clientes_llegaron_biblioteca.Count - 1;
+                    //clientes_permanencen_biblioteca.Remove(cliente);
                     cliente.setFin_uso_instalacion(0.ToString());
                     cliente.setAccion("Devolucion");
-                    clientes_llegaron_biblioteca.Add(cliente);
+                    //clientes_llegaron_biblioteca.Add(cliente);
                     simular_llegada(cliente);
                     break;
                 }
@@ -240,18 +286,15 @@ namespace TP5.Clases
             // Obtiene el cliente primero en la cola
             Cliente cliente_decola = clientes_en_cola[0];
 
-            // Obtiene el index del cliente 
-            int index_cliente = clientes_llegaron_biblioteca.IndexOf(cliente_decola);
-
             // Lo tiene que atender el empleado
-            atencion_empleado(empleado, index_cliente);
+            atencion_empleado(empleado, cliente_decola);
 
             // Se reduce el tamaño de la cola, y se elimina el cliente que esta siendo atendido
             cola--;
             clientes_en_cola.Remove(cliente_decola);
         }
 
-        private void calcular_cliente_usa_instalacion(Cliente cliente, int index_cliente)
+        private void calcular_cliente_usa_instalacion(Cliente cliente)
         {
             if (cliente.getAccion().Equals("Pedido") && !cliente.getPidioLibro()) 
             {
@@ -259,21 +302,23 @@ namespace TP5.Clases
                 rnd_permanencia = redondear(random.NextDouble());
                 if (calcular_probabilidad_permanencia(rnd_permanencia))
                 {
-                    clientes_llegaron_biblioteca[index_cliente].setEstado(Cliente.LEYENDO);
-                    clientes_llegaron_biblioteca[index_cliente].setFin_uso_instalacion((reloj + formulario.tiempo_uso_instalacion).ToString());
+                    clientes_llegaron_biblioteca.Find(cli => cli.Equals(cliente)).setEstado(Cliente.LEYENDO);
+                    clientes_llegaron_biblioteca.Find(cli => cli.Equals(cliente)).setFin_uso_instalacion((reloj + formulario.tiempo_uso_instalacion).ToString());
                     cliente.setPidioLibro(true);
                     tiempo_permanencia += formulario.tiempo_uso_instalacion;
                 }
                 else
                 {
                     // El cliente no se queda a leer. Se elimina de la lista de clientes que permanencen en biblioteca
-                    clientes_permanencen_biblioteca.Remove(cliente);
+                    cliente.salio_instalacion();
+                    //clientes_permanencen_biblioteca.Remove(cliente);
                 }
             }
             else
             {
                 // El cliente fue a devolver o consultar. Se elimina de la lista de clientes que permanencen en biblioteca
-                clientes_permanencen_biblioteca.Remove(cliente);
+                cliente.salio_instalacion();
+                //clientes_permanencen_biblioteca.Remove(cliente);
             }
         }
  
@@ -282,21 +327,29 @@ namespace TP5.Clases
             foreach (Cliente cliente in clientes)
             {
                 string persona = cliente.getNombre();
-                DataColumn column_estado = new DataColumn("Estado (" + persona + ")");
-                column_estado.DefaultValue = cliente.getEstado();
-                dataTable.Columns.Add(column_estado);
+                if (!dataTable.Columns.Contains("Estado (" + persona + ")"))
+                {
+                    DataColumn column_estado = new DataColumn("Estado (" + persona + ")");
+                    dataTable.Columns.Add(column_estado);
+                }
 
-                DataColumn column_hs_llegada = new DataColumn("Hs llegada (" + persona + ")");
-                column_hs_llegada.DefaultValue = cliente.getHs_llegada();
-                dataTable.Columns.Add(column_hs_llegada);
+                if (!dataTable.Columns.Contains("Hs llegada (" + persona + ")"))
+                {
+                    DataColumn column_hs_llegada = new DataColumn("Hs llegada (" + persona + ")");
+                    dataTable.Columns.Add(column_hs_llegada);
+                }
 
-                DataColumn column_fin_uso_inst = new DataColumn("Fin uso instalacion (" + persona + ")");
-                column_fin_uso_inst.DefaultValue = cliente.getFin_uso_instalacion();
-                dataTable.Columns.Add(column_fin_uso_inst);
+                if (!dataTable.Columns.Contains("Fin uso instalacion (" + persona + ")"))
+                {
+                    DataColumn column_fin_uso_inst = new DataColumn("Fin uso instalacion (" + persona + ")");
+                    dataTable.Columns.Add(column_fin_uso_inst);
+                }
 
-                DataColumn column_accion = new DataColumn("Accion (" + persona + ")");
-                column_accion.DefaultValue = cliente.getAccion();
-                dataTable.Columns.Add(column_accion);
+                if (!dataTable.Columns.Contains("Accion (" + persona + ")"))
+                {
+                    DataColumn column_accion = new DataColumn("Accion (" + persona + ")");
+                    dataTable.Columns.Add(column_accion);
+                }
             }
         }
 

@@ -14,26 +14,21 @@ namespace TP5.Clases
 
         public static string LEYENDO = "Leyendo";
 
-        private int indice_lista;
         private string nombre;
         private string estado;
         private string fin_uso_instalacion;
         private string hs_llegada;
         private string accion;
         private bool pidio_libro;
+        private bool en_instalacion;
 
-        public Cliente(int indice_lista, int contador, double hs_llegada, string accion)
+        public Cliente(int contador, double hs_llegada, string accion)
         {
-            this.indice_lista = indice_lista;
             this.nombre = "P" + contador.ToString();
             this.hs_llegada = hs_llegada.ToString();
             this.accion = accion;
+            this.en_instalacion = true;
         }
-
-        // Indice lista
-        public void setIndiceCola(int value) { this.indice_lista = value; }
-
-        public int getIndiceCola() { return this.indice_lista; }
 
         // Nombre
         public string getNombre()
@@ -100,13 +95,33 @@ namespace TP5.Clases
         {
             pidio_libro = value;
         }
-        
 
+        // En instalacion
+        public bool getEnInstalacion()
+        {
+            return this.en_instalacion;
+        }
+
+        public void salio_instalacion()
+        {
+            this.en_instalacion = false;
+        }
+
+        public override bool Equals(object obj)
+        {
+            var cliente = obj as Cliente;
+            return cliente != null &&
+                   nombre == cliente.nombre &&
+                   estado == cliente.estado &&
+                   fin_uso_instalacion == cliente.fin_uso_instalacion &&
+                   hs_llegada == cliente.hs_llegada &&
+                   accion == cliente.accion &&
+                   pidio_libro == cliente.pidio_libro;
+        }
 
         public override int GetHashCode()
         {
-            var hashCode = 784819246;
-            hashCode = hashCode * -1521134295 + indice_lista.GetHashCode();
+            var hashCode = 1484053613;
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(nombre);
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(estado);
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(fin_uso_instalacion);
@@ -114,16 +129,6 @@ namespace TP5.Clases
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(accion);
             hashCode = hashCode * -1521134295 + pidio_libro.GetHashCode();
             return hashCode;
-        }
-
-        public override bool Equals(object obj)
-        {
-            var cliente = obj as Cliente;
-            return cliente != null &&
-                   indice_lista == cliente.indice_lista &&
-                   nombre == cliente.nombre &&
-                   estado == cliente.estado &&
-                   pidio_libro == cliente.pidio_libro;
         }
     }
 }

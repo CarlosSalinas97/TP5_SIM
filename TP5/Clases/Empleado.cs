@@ -15,7 +15,7 @@ namespace TP5.Clases
         private string nombre;
         private string estado;
         private double fin_atencion;
-        private int cliente_atendiendo;
+        private Cliente cliente_atendiendo;
 
         public Empleado(string nombre)
         {
@@ -52,12 +52,12 @@ namespace TP5.Clases
         {
             return this.fin_atencion;
         }
-        public void setClienteAtendiendo(int value)
+        public void setClienteAtendiendo(Cliente value)
         {
             this.cliente_atendiendo = value;
         }
 
-        public int getClienteAtendiendo()
+        public Cliente getClienteAtendiendo()
         {
             return cliente_atendiendo;
         }

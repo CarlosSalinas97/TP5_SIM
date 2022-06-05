@@ -119,9 +119,10 @@ namespace TP5
             {
                 Simulacion simulacion = new Simulacion(this);
                 DataTable dt = simulacion.generar_simulacion();
+                dgv_simulacion.DataSource = dt;
+                /*
                 DataTable dt2 = new DataTable();                   
                 int fila = 0;
-
                 foreach (DataColumn dataColumn in dt.Columns)
                 {
                     dt2.Columns.Add(dataColumn.ColumnName);
@@ -165,6 +166,7 @@ namespace TP5
                 MessageBox.Show("Promedio de permanencia = " + Math.Truncate(promedio * 100) / 100);
 
                 dgv_simulacion.DataSource = dt2;
+                */
             } 
         }
     }
