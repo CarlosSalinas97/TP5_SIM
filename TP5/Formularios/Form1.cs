@@ -120,7 +120,6 @@ namespace TP5
             {
                 Simulacion simulacion = new Simulacion(this);
                 DataTable dt = simulacion.generar_simulacion();
-                //dgv_simulacion.DataSource = dt;
                 DataTable dt2 = new DataTable();                   
                 int fila = 0;
                 // Importa las columnas del DataTable Original

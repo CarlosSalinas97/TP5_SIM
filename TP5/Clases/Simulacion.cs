@@ -129,7 +129,6 @@ namespace TP5.Clases
 
             for (int i = 0; i < maximo_simulacion; i++)
             {
-                // Object[] variables_imprimir = new Object[dataTable.Columns.Count]; //Tiene que ser igual al tamaño de las columnas
                 if (i != 0 && reloj % formulario.llegada_personas == 0)
                 {
                     proxima_llegada = calcular_proxima_llegada(proxima_llegada);
@@ -148,7 +147,6 @@ namespace TP5.Clases
                     simular_fin_atencion();
                 }
 
-                //dataTable.Rows.Add(i, evento, reloj, proxima_llegada, rnd_tipo_llegada, tipo_llegada, rnd_tiempo_atencion, tiempo_atencion, empleado1.getFinAtencion(), empleado2.getFinAtencion(), rnd_permanencia, empleado1.getEstado(), empleado2.getEstado(), cola, contador_atencion, tiempo_permanencia);
                 agregar_columnas_persona(clientes_permanencen_biblioteca);
                 cargar_fila(i);
 
@@ -165,11 +163,7 @@ namespace TP5.Clases
                 {
                     i = maximo_simulacion;
                 }
-
-                
             }
-
-            
             return dataTable;
         }
 
@@ -282,13 +276,8 @@ namespace TP5.Clases
             {
                 if (cliente.getFin_uso_instalacion() != null && double.Parse(cliente.getFin_uso_instalacion()) == reloj)
                 {
-                    
-                    //clientes_llegaron_biblioteca.Remove(cliente);
-                    //int puntero_lista = clientes_llegaron_biblioteca.Count - 1;
-                    //clientes_permanencen_biblioteca.Remove(cliente);
                     cliente.setFin_uso_instalacion(0.ToString());
                     cliente.setAccion("Devolucion");
-                    //clientes_llegaron_biblioteca.Add(cliente);
                     simular_llegada(cliente);
                     break;
                 }
@@ -326,14 +315,12 @@ namespace TP5.Clases
                 {
                     // El cliente no se queda a leer. Se elimina de la lista de clientes que permanencen en biblioteca
                     cliente.salio_instalacion();
-                    //clientes_permanencen_biblioteca.Remove(cliente);
                 }
             }
             else
             {
                 // El cliente fue a devolver o consultar. Se elimina de la lista de clientes que permanencen en biblioteca
                 cliente.salio_instalacion();
-                //clientes_permanencen_biblioteca.Remove(cliente);
             }
         }
  
