@@ -9,6 +9,7 @@ namespace TP5.Clases
 {
     class Simulacion
     {
+        private static int NUMERO_GRANDE = 999999999;
         private DataTable dataTable;
         private Random random = new Random();
         private Empleado empleado1 = new Empleado("E1");
@@ -82,7 +83,7 @@ namespace TP5.Clases
             variables_imprimir[12] = empleado2.getEstado();
             variables_imprimir[13] = cola;
             variables_imprimir[14] = contador_atencion;
-            variables_imprimir[15] = tiempo_permanencia;
+            variables_imprimir[15] = redondear(tiempo_permanencia);
 
             // Validacion desde formulario (checkbox)
             if (formulario.mostrar_columnas_estado)
@@ -352,7 +353,7 @@ namespace TP5.Clases
 
         private double proximo_fin_uso_instalacion()
         {
-            double min = 99999;
+            double min = NUMERO_GRANDE;
             foreach (Cliente cliente in clientes_permanencen_biblioteca) {
                 if (cliente.getFin_uso_instalacion() != null && cliente.getFin_uso_instalacion() != "" && double.Parse(cliente.getFin_uso_instalacion()) < min)
                 {
@@ -366,9 +367,9 @@ namespace TP5.Clases
         private double salto_reloj(double proxima_llegada, double fin_atencion1, double fin_atencion2, double fin_uso_instalacion)
         {
             // Calcula cual será el proximo salto que hará el reloj. Siempre debe saltar al evento más proximo.
-            fin_atencion1 = fin_atencion1 == 0 ? 999999 : fin_atencion1;
-            fin_atencion2 = fin_atencion2 == 0 ? 999999 : fin_atencion2;
-            fin_uso_instalacion = fin_uso_instalacion == 0 ? 999999 : fin_uso_instalacion;
+            fin_atencion1 = fin_atencion1 == 0 ? NUMERO_GRANDE : fin_atencion1;
+            fin_atencion2 = fin_atencion2 == 0 ? NUMERO_GRANDE : fin_atencion2;
+            fin_uso_instalacion = fin_uso_instalacion == 0 ? NUMERO_GRANDE : fin_uso_instalacion;
             return Math.Min(proxima_llegada, Math.Min(fin_uso_instalacion, Math.Min(fin_atencion1, fin_atencion2)));
         }
 
