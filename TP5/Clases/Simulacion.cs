@@ -32,12 +32,7 @@ namespace TP5.Clases
         private List<Cliente> clientes_permanencen_biblioteca = new List<Cliente>();
         private List<Cliente> clientes_en_cola = new List<Cliente>();
         private double prox_fin_uso_instalacion = 0;
-        private Cliente proximo_fin_atencion1;
-        private Cliente proximo_fin_atencion2;
-        private Cliente proximo_fin_instalacion;
-        private double proximo_reloj_fin_atencion1;
-        private double proximo_reloj_fin_atencion2;
-        private double proximo_reloj_fin_instalacion;
+        private Cliente prox_cliente_fin_uso_instalacion;
 
         public Simulacion(Form1 formulario)
         {
@@ -272,23 +267,20 @@ namespace TP5.Clases
 
         private void simular_fin_uso_instalacion()
         {
-            foreach(Cliente cliente in clientes_permanencen_biblioteca)
-            {
-                if (cliente.getFin_uso_instalacion() != null && double.Parse(cliente.getFin_uso_instalacion()) == reloj)
-                {
-                    cliente.setFin_uso_instalacion(0.ToString());
-                    cliente.setAccion("Devolucion");
-                    simular_llegada(cliente);
-                    break;
-                }
-            }
-
+            prox_cliente_fin_uso_instalacion.setHs_llegada(reloj.ToString());
+            prox_cliente_fin_uso_instalacion.setFin_uso_instalacion("");
+            prox_cliente_fin_uso_instalacion.setAccion("Devolucion");
+            simular_llegada(prox_cliente_fin_uso_instalacion);
+            prox_cliente_fin_uso_instalacion = null;
         }
 
         private void atender_cliente_cola(Empleado empleado)
         {
             // Obtiene el cliente primero en la cola
             Cliente cliente_decola = clientes_en_cola[0];
+
+            // Calcula el tiempo en cola
+            tiempo_permanencia += reloj - double.Parse(cliente_decola.getHs_llegada());
 
             // Lo tiene que atender el empleado
             atencion_empleado(empleado, cliente_decola);
@@ -361,10 +353,11 @@ namespace TP5.Clases
         private double proximo_fin_uso_instalacion()
         {
             double min = 99999;
-            foreach(Cliente cliente in clientes_permanencen_biblioteca) {
-                if (cliente.getFin_uso_instalacion() != null && double.Parse(cliente.getFin_uso_instalacion()) < min)
+            foreach (Cliente cliente in clientes_permanencen_biblioteca) {
+                if (cliente.getFin_uso_instalacion() != null && cliente.getFin_uso_instalacion() != "" && double.Parse(cliente.getFin_uso_instalacion()) < min)
                 {
                     min = double.Parse(cliente.getFin_uso_instalacion());
+                    prox_cliente_fin_uso_instalacion = cliente;
                 }
             }
             return min;
