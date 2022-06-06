@@ -72,13 +72,13 @@ namespace TP5.Clases
             variables_imprimir[1] = evento;
             variables_imprimir[2] = reloj;
             variables_imprimir[3] = proxima_llegada;
-            variables_imprimir[4] = rnd_tipo_llegada;
+            variables_imprimir[4] = rnd_tipo_llegada == 0 ? "" : rnd_tipo_llegada.ToString();
             variables_imprimir[5] = tipo_llegada;
-            variables_imprimir[6] = rnd_tiempo_atencion;
-            variables_imprimir[7] = tiempo_atencion;
-            variables_imprimir[8] = empleado1.getFinAtencion();
-            variables_imprimir[9] = empleado2.getFinAtencion();
-            variables_imprimir[10] = rnd_permanencia;
+            variables_imprimir[6] = rnd_tiempo_atencion == 0 ? "" : rnd_tiempo_atencion.ToString();
+            variables_imprimir[7] = tiempo_atencion == 0 ? "" : tiempo_atencion.ToString();
+            variables_imprimir[8] = empleado1.getFinAtencion() == 0 ? "" : empleado1.getFinAtencion().ToString();
+            variables_imprimir[9] = empleado2.getFinAtencion() == 0 ? "" : empleado2.getFinAtencion().ToString();
+            variables_imprimir[10] = rnd_permanencia == 0 ? "" : rnd_permanencia.ToString();
             variables_imprimir[11] = empleado1.getEstado();
             variables_imprimir[12] = empleado2.getEstado();
             variables_imprimir[13] = cola;
@@ -293,7 +293,7 @@ namespace TP5.Clases
 
         private void calcular_cliente_usa_instalacion(Cliente cliente)
         {
-            if (cliente.getAccion().Equals("Pedido") && !cliente.getPidioLibro()) 
+            if (cliente.getAccion().Equals("Pedido") && !cliente.getPidioLibro() && (cliente.getEstado() == "SA E1" || cliente.getEstado() == "SA E2")) 
             {
                 // Significa que el cliente hizo un pedido y se realiza el random para determinar si se queda.
                 rnd_permanencia = redondear(random.NextDouble());
