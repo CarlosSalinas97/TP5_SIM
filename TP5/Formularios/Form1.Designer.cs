@@ -67,7 +67,6 @@
             this.dgv_simulacion.AllowUserToDeleteRows = false;
             this.dgv_simulacion.AllowUserToResizeColumns = false;
             this.dgv_simulacion.AllowUserToResizeRows = false;
-            this.dgv_simulacion.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
             this.dgv_simulacion.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgv_simulacion.Location = new System.Drawing.Point(12, 125);
             this.dgv_simulacion.Name = "dgv_simulacion";
