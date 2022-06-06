@@ -58,6 +58,8 @@
             this.txt_tiempo_llegadas = new System.Windows.Forms.MaskedTextBox();
             this.label6 = new System.Windows.Forms.Label();
             this.checkbox_columnas = new System.Windows.Forms.CheckBox();
+            this.label2 = new System.Windows.Forms.Label();
+            this.label_resultado_promedio = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.dgv_simulacion)).BeginInit();
             this.SuspendLayout();
             // 
@@ -85,7 +87,7 @@
             // btn_simular
             // 
             this.btn_simular.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btn_simular.Location = new System.Drawing.Point(1147, 12);
+            this.btn_simular.Location = new System.Drawing.Point(1370, 12);
             this.btn_simular.Name = "btn_simular";
             this.btn_simular.Size = new System.Drawing.Size(96, 107);
             this.btn_simular.TabIndex = 9;
@@ -356,11 +358,33 @@
             this.checkbox_columnas.UseVisualStyleBackColor = true;
             this.checkbox_columnas.CheckedChanged += new System.EventHandler(this.checkbox_columnas_CheckedChanged);
             // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label2.Location = new System.Drawing.Point(1123, 14);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(241, 20);
+            this.label2.TabIndex = 28;
+            this.label2.Text = "Promedio de permanencia (min.):";
+            // 
+            // label_resultado_promedio
+            // 
+            this.label_resultado_promedio.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.label_resultado_promedio.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label_resultado_promedio.Location = new System.Drawing.Point(1168, 47);
+            this.label_resultado_promedio.Name = "label_resultado_promedio";
+            this.label_resultado_promedio.Size = new System.Drawing.Size(145, 63);
+            this.label_resultado_promedio.TabIndex = 29;
+            this.label_resultado_promedio.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1478, 833);
+            this.Controls.Add(this.label_resultado_promedio);
+            this.Controls.Add(this.label2);
             this.Controls.Add(this.checkbox_columnas);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.txt_tiempo_llegadas);
@@ -433,6 +457,8 @@
         private System.Windows.Forms.MaskedTextBox txt_tiempo_llegadas;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.CheckBox checkbox_columnas;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label label_resultado_promedio;
     }
 }
 

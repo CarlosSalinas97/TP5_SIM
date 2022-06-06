@@ -192,7 +192,7 @@ namespace TP5
 
                 promedio = tiempoPromedio / contadorAtencion;
 
-                MessageBox.Show("Promedio de permanencia = " + Math.Truncate(promedio * 100) / 100);
+                label_resultado_promedio.Text = (Math.Truncate(promedio * 100) / 100).ToString();
 
                 dgv_simulacion.DataSource = dt2;
             } 
