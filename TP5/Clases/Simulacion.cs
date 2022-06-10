@@ -65,11 +65,17 @@ namespace TP5.Clases
             dataTable.Columns.Add("Tiempo permanencia");
         }
 
+        // Determina si las iteracciones llegaron a las definidas en la vista. 
+        // Ej: Si se muestra desde reloj = 10 | i = 4 y queremos ver las proximas X = 100, cuenta las iteracciones hasta llegar a i+X (4+100).
         private void calcular_iteraciones()
         {
+            // Entra al condicional si el reloj es mayor a la hora desde y todavia no se llegaron a las i+X iteracciones
+            // Si no entra, significa que todavia no se llegó a la hora desde, o que ya se cumplio el i+X
             if (reloj >= formulario.hora_desde && !iteracciones_cumplidas)
             {
                 cantidad_iteracciones++;
+
+                // Si las iteraciones llegaron a i+X, significa que cumplimos la cantidad de iteraciones y se actualiza dicha variable.
                 if (cantidad_iteracciones == formulario.cantidad_iteracciones)
                 {
                     iteracciones_cumplidas = true;
@@ -82,6 +88,10 @@ namespace TP5.Clases
         private void cargar_fila(int i)
         {
             Object[] variables_imprimir;
+
+            // Si el reloj no llegó a la hora_desde que queremos mostrar O se cumplió con las X iteracciones que queríamos mostrar. Solamente generaremos 16 columnas (las principales).
+            // Caso contrario, significa que estamos en el rango de la tabla que queremos ver las columnas estado de los clientes, por lo que generaremos Z columnas segun la cantidad 
+            // de personas en la biblioteca
             if (reloj < formulario.hora_desde || iteracciones_cumplidas) {
                 variables_imprimir = new Object[16];
             } else
@@ -108,10 +118,10 @@ namespace TP5.Clases
             variables_imprimir[14] = contador_atencion;
             variables_imprimir[15] = redondear(tiempo_permanencia);
 
-            // Validacion desde formulario (checkbox) y que no genere las columnas de la ultima fila
+            // Si no estamos dentro del rango (hora_desde y X iteraciones) definido en los paramétros | No genere las columnas de la ultima fila | Validacion desde formulario (checkbox)
             if (!iteracciones_cumplidas && reloj > formulario.hora_desde && reloj != formulario.reloj_max && i != maximo_simulacion && formulario.mostrar_columnas_estado)
             {
-                // For para saber cuantas columnas mas agregar
+                // Bucle para saber cuantas columnas mas agregar
                 int j = 16;
                 for (int k = 0; k < clientes_permanencen_biblioteca.Count; k++)
                 {
@@ -145,11 +155,11 @@ namespace TP5.Clases
         {
             generar_dt();
             proxima_llegada = formulario.llegada_personas;
-            
 
             for (int i = 0; i < maximo_simulacion; i++)
             {
                 calcular_iteraciones();
+
                 if (i != 0 && reloj % formulario.llegada_personas == 0)
                 {
                     proxima_llegada = calcular_proxima_llegada(proxima_llegada);
