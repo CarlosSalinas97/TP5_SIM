@@ -67,7 +67,7 @@ namespace TP5.Clases
         private void cargar_fila(int i)
         {
             int contador_columnas = dataTable.Columns.Count;
-            Object[] variables_imprimir = new Object[contador_columnas];
+            Object[] variables_imprimir = new Object[contador_columnas];          
             variables_imprimir[0] = i;
             variables_imprimir[1] = evento;
             variables_imprimir[2] = reloj;
@@ -85,8 +85,8 @@ namespace TP5.Clases
             variables_imprimir[14] = contador_atencion;
             variables_imprimir[15] = redondear(tiempo_permanencia);
 
-            // Validacion desde formulario (checkbox)
-            if (formulario.mostrar_columnas_estado)
+            // Validacion desde formulario (checkbox) y que no genere las columnas de la ultima fila
+            if (reloj != formulario.reloj_max && i != maximo_simulacion && formulario.mostrar_columnas_estado)
             {
                 // For para saber cuantas columnas mas agregar
                 int j = 16;
