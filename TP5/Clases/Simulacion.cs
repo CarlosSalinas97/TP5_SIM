@@ -34,6 +34,8 @@ namespace TP5.Clases
         private List<Cliente> clientes_en_cola = new List<Cliente>();
         private double prox_fin_uso_instalacion = 0;
         private Cliente prox_cliente_fin_uso_instalacion;
+        private int cantidad_iteracciones = 0;
+        private bool iteracciones_cumplidas = false;
 
         public Simulacion(Form1 formulario)
         {
@@ -63,11 +65,32 @@ namespace TP5.Clases
             dataTable.Columns.Add("Tiempo permanencia");
         }
 
+        private void calcular_iteraciones()
+        {
+            if (reloj >= formulario.hora_desde && !iteracciones_cumplidas)
+            {
+                cantidad_iteracciones++;
+                if (cantidad_iteracciones == formulario.cantidad_iteracciones)
+                {
+                    iteracciones_cumplidas = true;
+                }
+
+            }
+        }
+
         // Cargar filas de DataTable
         private void cargar_fila(int i)
         {
-            int contador_columnas = dataTable.Columns.Count;
-            Object[] variables_imprimir = new Object[contador_columnas];          
+            Object[] variables_imprimir;
+            if (reloj < formulario.hora_desde || iteracciones_cumplidas) {
+                variables_imprimir = new Object[16];
+            } else
+            {
+                agregar_columnas_persona(clientes_permanencen_biblioteca);
+                int contador_columnas = dataTable.Columns.Count;
+                variables_imprimir = new Object[contador_columnas];
+            }
+
             variables_imprimir[0] = i;
             variables_imprimir[1] = evento;
             variables_imprimir[2] = reloj;
@@ -86,7 +109,7 @@ namespace TP5.Clases
             variables_imprimir[15] = redondear(tiempo_permanencia);
 
             // Validacion desde formulario (checkbox) y que no genere las columnas de la ultima fila
-            if (reloj != formulario.reloj_max && i != maximo_simulacion && formulario.mostrar_columnas_estado)
+            if (!iteracciones_cumplidas && reloj > formulario.hora_desde && reloj != formulario.reloj_max && i != maximo_simulacion && formulario.mostrar_columnas_estado)
             {
                 // For para saber cuantas columnas mas agregar
                 int j = 16;
@@ -122,9 +145,11 @@ namespace TP5.Clases
         {
             generar_dt();
             proxima_llegada = formulario.llegada_personas;
+            
 
             for (int i = 0; i < maximo_simulacion; i++)
             {
+                calcular_iteraciones();
                 if (i != 0 && reloj % formulario.llegada_personas == 0)
                 {
                     proxima_llegada = calcular_proxima_llegada(proxima_llegada);
@@ -143,7 +168,6 @@ namespace TP5.Clases
                     simular_fin_atencion();
                 }
 
-                agregar_columnas_persona(clientes_permanencen_biblioteca);
                 cargar_fila(i);
 
                 prox_fin_uso_instalacion = proximo_fin_uso_instalacion();
